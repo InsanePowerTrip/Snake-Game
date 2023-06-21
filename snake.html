@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake Game</title>
+  <style>
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  #game-board {
+    background-color: #ddd;
+    border: 1px solid #000;
+    width: 100%;
+    height: calc(100% - 20px); /* Subtracting 20px for the score element */
+    box-sizing: border-box;
+  }
+
+  @media (prefers-color-scheme: dark) {
+  body {
+    background-color: #333;
+    color: #fff;
+  }
+
+  #game-board {
+    background-color: #000;
+    border: 1px solid #ddd;
+    width: 400px;
+    height: 400px;
+  }
+}
+
+button {
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4CAF50;
+  }
+
+  /* Directional button styles */
+  #up-button {
+    transform: rotate(-90deg);
+  }
+
+  #down-button {
+    transform: rotate(90deg);
+  }
+
+  #left-button {
+    transform: rotate(180deg);
+  }
+
+  /* Center the button container */
+  .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }  #score {
+    font-size: 5em;
+    margin: 10px;
+    text-align: left;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+  }
+  </style>
+</head>
+<body>
+   <div id="controls">
+    <div id="game-board"></div>
+    <div id="score"><b>Score: 0</b></div>
+  </div>
+
+
+  <script>
+    // Game variables
+    var canvasSize = 20;
+    var tileSize = 20;
+    var snake;
+    var apples = [];
+    var score = 0;
+    var scoreElement = document.getElementById("score");
+
+    // Direction constants
+    var UP = "up";
+    var DOWN = "down";
+    var LEFT = "left";
+    var RIGHT = "right";
+
+    // Initial game setup
+    function startGame() {
+      score = -1;
+      scoreElement.textContent = "Score: " + score;
+      snake = new Snake();
+      snake.draw();
+      createApple();
+      drawApples();
+    }
+
+    // Snake constructor
+    function Snake() {
+      this.x = Math.floor(canvasSize / 2);
+      this.y = Math.floor(canvasSize / 2);
+      this.xSpeed = 0;
+      this.ySpeed = 0;
+      this.tail = 1;
+      this.tailPositions = [];
+
+      // Update snake position
+      this.update = function() {
+        this.x += this.xSpeed;
+        this.y += this.ySpeed;
+
+        // Check collision with walls
+        if (this.x < 0 || this.x >= canvasSize || this.y < 0 || this.y >= canvasSize) {
+          gameOver();
+        }
+
+          // Check collision with apple
+  if (isColliding(this.x, this.y, apples[0])) {
+    this.tail++;
+    createApple();
+  }
+
+// Check collision with tail
+for (var i = 0; i < this.tailPositions.length - 1; i++) {
+  var pos = this.tailPositions[i];
+  if (pos[0] === this.x && pos[1] === this.y) {
+    gameOver();
+  }     
+}
+
+
+        // Add current position to tailPositions
+        this.tailPositions.push([this.x, this.y]);
+
+        // Remove old tail positions
+        while (this.tailPositions.length > this.tail) {
+          this.tailPositions.shift();
+        }
+
+        // Check collision with apples
+        for (var i = 0; i < apples.length; i++) {
+          var apple = apples[i];
+          if (apple.x === this.x && apple.y === this.y) {
+            this.tail++;
+            apples.splice(i, 1);
+            createApple();
+          }
+        }
+
+        scoreElement.textContent = "Score: " + score;
+      };
+
+      function isDarkMode() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      // Draw snake on the game board
+      this.draw = function() {
+        var gameBoard = document.getElementById("game-board");
+        gameBoard.innerHTML = "";
+
+        for (var i = 0; i < this.tailPositions.length; i++) {
+          var pos = this.tailPositions[i];
+          var snakePart = document.createElement("div");
+          snakePart.style.width = tileSize + "px";
+          snakePart.style.height = tileSize + "px";
+          isDarkMode() ? snakePart.style.backgroundColor = "#ddd" : snakePart.style.backgroundColor = "#333"
+          snakePart.style.position = "absolute";
+          snakePart.style.left = pos[0] * tileSize + "px";
+          snakePart.style.top = pos[1] * tileSize + "px";
+          gameBoard.appendChild(snakePart);
+        }
+      };
+
+      // Change snake direction
+      this.changeDirection = function(newDirection) {
+        switch (newDirection) {
+          case UP:
+            if (this.ySpeed !== 1) {
+              this.xSpeed = 0;
+              this.ySpeed = -1;
+
+            }
+            break;
+          case DOWN:
+            if (this.ySpeed !== -1) {
+              this.xSpeed = 0;
+              this.ySpeed = 1;
+
+            }
+            break;
+          case LEFT:
+            if (this.xSpeed !== 1) {
+              this.xSpeed = -1;
+              this.ySpeed = 0;
+
+            }
+            break;
+          case RIGHT:
+            if (this.xSpeed !== -1) {
+              this.xSpeed = 1;
+              this.ySpeed = 0;
+
+            }
+            break;
+        }
+      };
+    }
+
+    // Apple constructor
+    function Apple(x, y) {
+  this.x = x;
+  this.y = y;
+
+  // Draw apple on the game board
+  this.draw = function() {
+    var gameBoard = document.getElementById("game-board");
+    var appleElement = document.createElement("img");
+    appleElement.src = "apple.png";
+    appleElement.style.width = tileSize + "px";
+    appleElement.style.height = tileSize + "px";
+    appleElement.style.position = "absolute";
+    appleElement.style.left = this.x * tileSize + "px";
+    appleElement.style.top = this.y * tileSize + "px";
+    gameBoard.appendChild(appleElement);
+  };
+}
+
+    // Add touch event listeners to the game board element
+var gameBoard = document.getElementById("game-board");
+gameBoard.addEventListener("touchstart", handleTouchStart);
+gameBoard.addEventListener("touchmove", handleTouchMove);
+
+
+    // Create a single apple at a random position
+function createApple() {
+  var apple = new Apple(
+    Math.floor(Math.random() * canvasSize),
+    Math.floor(Math.random() * canvasSize)
+  );
+
+  // Check collision with snake
+  while (isColliding(apple.x, apple.y, snake)) {
+    apple.x = Math.floor(Math.random() * canvasSize);
+    apple.y = Math.floor(Math.random() * canvasSize);
+  }
+
+  // Check collision with walls
+  if (apple.x < 0 || apple.x >= canvasSize || apple.y < 0 || apple.y >= canvasSize) {
+    createApple(); // If the apple is outside the boundaries, try again
+  } else {
+    apples = [apple];
+  }
+
+  score++;
+  scoreElement.textContent = "Score: " + score;
+}
+
+
+    // Check collision between two objects
+    function isColliding(x, y, obj) {
+      return x === obj.x && y === obj.y;
+    }
+
+// Draw all the apples on the game board
+function drawApples() {
+  for (var i = 0; i < apples.length; i++) {
+    var apple = apples[i];
+    apple.draw();
+  }
+}
+
+function gameOver() {
+      score = 0;
+      scoreElement.textContent = "Score: " + score;
+      alert("Game Over");
+      startGame();
+    }
+
+// Change snake direction
+this.changeDirection = function(newDirection) {
+  switch (newDirection) {
+    case UP:
+      if (this.ySpeed !== 1 || this.tail === 1) {
+        this.xSpeed = 0;
+        this.ySpeed = -1;
+      }
+      break;
+    case DOWN:
+      if (this.ySpeed !== -1 || this.tail === 1) {
+        this.xSpeed = 0;
+        this.ySpeed = 1;
+      }
+      break;
+    case LEFT:
+      if (this.xSpeed !== 1 || this.tail === 1) {
+        this.xSpeed = -1;
+        this.ySpeed = 0;
+      }
+      break;
+    case RIGHT:
+      if (this.xSpeed !== -1 || this.tail === 1) {
+        this.xSpeed = 1;
+        this.ySpeed = 0;
+      }
+      break;
+  }
+};
+
+// Handle keyboard events
+window.addEventListener("keydown", function(event) {
+  var key = event.keyCode;
+
+  if (key === 38) {
+    snake.changeDirection(UP);
+  } else if (key === 40) {
+    snake.changeDirection(DOWN);
+  } else if (key === 37) {
+    snake.changeDirection(LEFT);
+  } else if (key === 39) {
+    snake.changeDirection(RIGHT);
+  }
+});
+
+    // Game loop
+    function gameLoop() {
+      snake.update();
+      snake.draw();
+      drawApples();
+
+      setTimeout(gameLoop, 100);
+    }
+
+    // Touch event handlers
+var xStart = null;
+var yStart = null;
+
+function handleTouchStart(event) {
+  var touch = event.touches[0];
+  xStart = touch.clientX;
+  yStart = touch.clientY;
+}
+
+function handleTouchMove(event) {
+  if (!xStart || !yStart) {
+    return;
+  }
+
+  var touch = event.touches[0];
+  var xEnd = touch.clientX;
+  var yEnd = touch.clientY;
+  var xDiff = xEnd - xStart;
+  var yDiff = yEnd - yStart;
+
+  if (Math.abs(xDiff) > Math.abs(yDiff)) {
+    if (xDiff > 0) {
+      snake.changeDirection(RIGHT);
+    } else {
+      snake.changeDirection(LEFT);
+    }
+  } else {
+    if (yDiff > 0) {
+      snake.changeDirection(DOWN);
+    } else {
+      snake.changeDirection(UP);
+    }
+  }
+
+  // Reset touch start coordinates
+  xStart = null;
+  yStart = null;
+
+  // Prevent scrolling the page
+  event.preventDefault();
+}
+
+    // Start the game
+    startGame();
+    gameLoop();
+  </script>
+</body>
+</html>
