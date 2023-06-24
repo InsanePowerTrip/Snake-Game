@@ -13,8 +13,8 @@
   #game-board {
     background-color: #ddd;
     border: 1px solid #000;
-    width: 100%;
-    height: calc(100% - 20px); /* Subtracting 20px for the score element */
+    width: 100vw;
+    height: calc(100vh - 5em - 90px);
     box-sizing: border-box;
   }
 
@@ -27,8 +27,6 @@
   #game-board {
     background-color: #000;
     border: 1px solid #ddd;
-    width: 400px;
-    height: 400px;
   }
 }
 
@@ -55,35 +53,74 @@ button {
     outline: none;
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4CAF50;
   }
-
-  /* Directional button styles */
-  #up-button {
-    transform: rotate(-90deg);
-  }
-
-  #down-button {
-    transform: rotate(90deg);
-  }
-
-  #left-button {
-    transform: rotate(180deg);
-  }
-
-  /* Center the button container */
-  .button-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }  #score {
+  
+  #score {
     font-size: 5em;
     margin: 10px;
     text-align: left;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+
+  #about {
+    float: right;
+    width: 100%;
+  }
+
+  .modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.modal-content p, #about {
+  font-size: large;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.modal-content p a {
+  color: #1271df;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: #212121;
+    border: 1px solid #333;
+  }
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
   </style>
 </head>
 <body>
@@ -92,11 +129,43 @@ button {
     <div id="score"><b>Score: 0</b></div>
   </div>
 
+  <button id="about">About</button>
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>This is the Snake Game developed by me. <wbr>
+        The code is open-source at GitHub. <wbr>
+        Keyboard arrow keys and swipe on game are available types of input. <wbr>
+        <a href="https://github.com/InfinityGorzan/">The GitHub Repository</a>.<wbr>
+      </p>
+    </div>
+  </div>
+  
+  <script>
+  var modal = document.getElementById("modal");
+  var btn = document.getElementById("about");
+  var span = document.getElementsByClassName("close")[0];
+  
+  btn.onclick = function() {
+    modal.style.display = "block";
+  }
+  
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+  
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+  </script>
 
   <script>
     // Game variables
-    var canvasSize = 20;
     var tileSize = 20;
+var canvasWidth = Math.floor(window.innerWidth / tileSize);
+var canvasHeight = Math.floor((window.innerHeight - (5 * parseFloat(getComputedStyle(document.documentElement).fontSize) + 90)) / tileSize);
     var snake;
     var apples = [];
     var score = 0;
@@ -110,6 +179,8 @@ button {
 
     // Initial game setup
     function startGame() {
+      gameBoard.style.width = canvasWidth * tileSize + "px";
+  gameBoard.style.height = canvasHeight * tileSize + "px";
       score = -1;
       scoreElement.textContent = "Score: " + score;
       snake = new Snake();
@@ -120,8 +191,8 @@ button {
 
     // Snake constructor
     function Snake() {
-      this.x = Math.floor(canvasSize / 2);
-      this.y = Math.floor(canvasSize / 2);
+      this.x = Math.floor(canvasWidth / 2);
+      this.y = Math.floor(canvasHeight / 2);
       this.xSpeed = 0;
       this.ySpeed = 0;
       this.tail = 1;
@@ -133,7 +204,7 @@ button {
         this.y += this.ySpeed;
 
         // Check collision with walls
-        if (this.x < 0 || this.x >= canvasSize || this.y < 0 || this.y >= canvasSize) {
+        if (this.x < 0 || this.x >= canvasWidth || this.y < 0 || this.y >= canvasHeight) {
           gameOver();
         }
 
@@ -258,18 +329,18 @@ gameBoard.addEventListener("touchmove", handleTouchMove);
     // Create a single apple at a random position
 function createApple() {
   var apple = new Apple(
-    Math.floor(Math.random() * canvasSize),
-    Math.floor(Math.random() * canvasSize)
+    Math.floor(Math.random() * canvasWidth),
+    Math.floor(Math.random() * canvasHeight)
   );
 
   // Check collision with snake
   while (isColliding(apple.x, apple.y, snake)) {
-    apple.x = Math.floor(Math.random() * canvasSize);
-    apple.y = Math.floor(Math.random() * canvasSize);
+    apple.x = Math.floor(Math.random() * canvasWidth);
+    apple.y = Math.floor(Math.random() * canvasHeight);
   }
 
   // Check collision with walls
-  if (apple.x < 0 || apple.x >= canvasSize || apple.y < 0 || apple.y >= canvasSize) {
+  if (apple.x < 0 || apple.x >= canvasWidth || apple.y < 0 || apple.y >= canvasHeight) {
     createApple(); // If the apple is outside the boundaries, try again
   } else {
     apples = [apple];
