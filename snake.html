@@ -103,7 +103,7 @@ button {
 }
 
 .modalbtn {
-  width: calc(50% - 15px);
+  width: calc(100% - 15px);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -124,19 +124,7 @@ button {
     <div id="score"><b>Score: 0</b></div>
   </div>
 
-  <button id="about" class="modalbtn">About</button>
   <button id="colors" class="modalbtn">Colors</button>
-
-  <div id="aboutmdl" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <p>This is the Snake Game developed by me. <wbr>
-        The code is open-source at GitHub. <wbr>
-        Keyboard arrow keys and swipe on game are available types of input. <wbr>
-        <a href="https://github.com/InfinityGorzan/Snake-Game">The GitHub Repository</a>.<wbr>
-      </p>
-    </div>
-  </div>
 
   <div id="clrsmodal" class="modal">
     <div class="modal-content">
@@ -154,30 +142,10 @@ button {
     </div>
   </div>
 
-  <script defer>
-  var modal = document.getElementById("aboutmdl");
-  var btn = document.getElementById("about");
-  var span = document.getElementsByClassName("close")[0];
-  
-  btn.onclick = function() {
-    modal.style.display = "block";
-  }
-  
-  span.onclick = function() {
-    modal.style.display = "none";
-  }
-  
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-  </script>
-
 <script defer>
   var modal = document.getElementById("clrsmodal");
   var btn = document.getElementById("colors");
-  var span = document.getElementsByClassName("close")[1];
+  var span = document.getElementsByClassName("close")[0];
   
   btn.onclick = function() {
     modal.style.display = "block";
