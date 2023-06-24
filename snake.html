@@ -61,11 +61,6 @@ button {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
-  #about {
-    float: right;
-    width: 100%;
-  }
-
   .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
@@ -107,6 +102,10 @@ button {
   cursor: pointer;
 }
 
+.modalbtn {
+  width: calc(50% - 15px);
+}
+
 @media (prefers-color-scheme: dark) {
   .modal-content {
     background-color: #212121;
@@ -125,8 +124,10 @@ button {
     <div id="score"><b>Score: 0</b></div>
   </div>
 
-  <button id="about">About</button>
-  <div id="modal" class="modal">
+  <button id="about" class="modalbtn">About</button>
+  <button id="colors" class="modalbtn">Colors</button>
+
+  <div id="aboutmdl" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <p>This is the Snake Game developed by me. <wbr>
@@ -136,9 +137,25 @@ button {
       </p>
     </div>
   </div>
-  
-  <script>
-  var modal = document.getElementById("modal");
+
+  <div id="clrsmodal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>Choose a color: </p>
+      <button id="red">Red</button>
+      <button id="orange">Orange</button>
+      <button id="yellow">Yellow</button>
+      <button id="green">Green</button>
+      <button id="blue">Blue</button>
+      <button id="pink">Pink</button>
+      <button id="purple">Purple</button>
+      <button id="invertDT"><span id="invertDeviceTheme"></span></button>
+      </p>
+    </div>
+  </div>
+
+  <script defer>
+  var modal = document.getElementById("aboutmdl");
   var btn = document.getElementById("about");
   var span = document.getElementsByClassName("close")[0];
   
@@ -157,7 +174,27 @@ button {
   }
   </script>
 
-  <script>
+<script defer>
+  var modal = document.getElementById("clrsmodal");
+  var btn = document.getElementById("colors");
+  var span = document.getElementsByClassName("close")[1];
+  
+  btn.onclick = function() {
+    modal.style.display = "block";
+  }
+  
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+  
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+  </script>
+
+  <script defer>
     // Game variables
     var tileSize = 20;
 var canvasWidth = Math.floor(window.innerWidth / tileSize);
@@ -166,6 +203,43 @@ var canvasHeight = Math.floor((window.innerHeight - (5 * parseFloat(getComputedS
     var apples = [];
     var score = 0;
     var scoreElement = document.getElementById("score");
+    var red = document.getElementById("red")
+    var orange = document.getElementById("orange")
+    var yellow = document.getElementById("yellow")
+    var green = document.getElementById("green")
+    var blue = document.getElementById("blue")
+    var pink = document.getElementById("pink")
+    var purple = document.getElementById("purple")
+    var invertDT = document.getElementById("invertDT")
+
+    red.onclick = function() {
+  startGame("red");
+};
+orange.onclick = function() {
+  startGame("orange");
+};
+yellow.onclick = function() {
+  startGame("yellow");
+};
+green.onclick = function() {
+  startGame("green");
+};
+blue.onclick = function() {
+  startGame("blue");
+};
+pink.onclick = function() {
+  startGame("pink");
+};
+purple.onclick = function() {
+  startGame("purple");
+};
+invertDT.onclick = function() {
+  startGame("invertDT");
+};
+
+    function isDarkMode() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
 
     // Direction constants
     var UP = "up";
@@ -174,19 +248,19 @@ var canvasHeight = Math.floor((window.innerHeight - (5 * parseFloat(getComputedS
     var RIGHT = "right";
 
     // Initial game setup
-    function startGame() {
+    function startGame(color) {
       gameBoard.style.width = canvasWidth * tileSize + "px";
-  gameBoard.style.height = canvasHeight * tileSize + "px";
+      gameBoard.style.height = canvasHeight * tileSize + "px";
       score = -1;
       scoreElement.textContent = "Score: " + score;
-      snake = new Snake();
+      snake = new Snake(color);
       snake.draw();
       createApple();
       drawApples();
     }
 
     // Snake constructor
-    function Snake() {
+    function Snake(color) {
       this.x = Math.floor(canvasWidth / 2);
       this.y = Math.floor(canvasHeight / 2);
       this.xSpeed = 0;
@@ -240,9 +314,7 @@ for (var i = 0; i < this.tailPositions.length - 1; i++) {
         scoreElement.textContent = "Score: " + score;
       };
 
-      function isDarkMode() {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
+      document.getElementById("invertDeviceTheme").innerText = isDarkMode() ? "White" : "Black"
 
       // Draw snake on the game board
       this.draw = function() {
@@ -254,7 +326,12 @@ for (var i = 0; i < this.tailPositions.length - 1; i++) {
           var snakePart = document.createElement("div");
           snakePart.style.width = tileSize + "px";
           snakePart.style.height = tileSize + "px";
-          isDarkMode() ? snakePart.style.backgroundColor = "#ddd" : snakePart.style.backgroundColor = "#333"
+          if (color == "invertDT") {
+            isDarkMode() ? snakePart.style.backgroundColor = "#ddd" : snakePart.style.backgroundColor = "#333";
+          } else {
+            snakePart.style.backgroundColor = color;
+          }
+
           snakePart.style.position = "absolute";
           snakePart.style.left = pos[0] * tileSize + "px";
           snakePart.style.top = pos[1] * tileSize + "px";
@@ -465,7 +542,7 @@ function handleTouchMove(event) {
 }
 
     // Start the game
-    startGame();
+    startGame("invertDT");
     gameLoop();
   </script>
 </body>
