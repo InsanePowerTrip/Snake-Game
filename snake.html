@@ -84,7 +84,7 @@ button {
   width: 80%;
 }
 
-.modal-content p, #about {
+.modal-content p {
   font-size: large;
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -558,6 +558,42 @@ window.addEventListener("keydown", function(event) {
     snake.changeDirection(RIGHT);
   }
 });
+function updateGamepad() {
+  var gamepads = navigator.getGamepads();
+  
+  // Iterate over connected gamepads
+  for (var i = 0; i < gamepads.length; i++) {
+    var gamepad = gamepads[i];
+    
+    if (gamepad) {
+    var axes = gamepad.axes;
+  var xAxis = axes[0];
+  var yAxis = axes[1];
+
+  // Determine the direction based on analog stick values
+  var direction = "";
+
+  if (xAxis < -0.5) {
+    direction = LEFT;
+  } else if (xAxis > 0.5) {
+    direction = RIGHT;
+  }
+
+  if (yAxis < -0.5) {
+    direction = UP;
+  } else if (yAxis > 0.5) {
+    direction = DOWN;
+  }
+
+  snake.changeDirection(direction)
+    }
+  }
+  
+  requestAnimationFrame(updateGamepad);
+}
+
+// Start the update loop
+updateGamepad();
 
     // Game loop
     function gameLoop() {
