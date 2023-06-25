@@ -116,6 +116,60 @@ button {
   }
 }
 
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .collapsible {
+    background-color: white;
+    color: black;
+  }
+
+  .active, .collapsible:hover {
+    background-color: #bdbdbd;
+  }
+
+  .collapsible:after {
+    color: black;
+  }
+
+  .content {
+    background-color: #212121;
+  }
+}
   </style>
 </head>
 <body>
@@ -124,12 +178,23 @@ button {
     <div id="score"><b>Score: 0</b></div>
   </div>
 
-  <button id="colors" class="modalbtn">Colors</button>
+  <button id="colors" class="modalbtn">Options</button>
 
   <div id="clrsmodal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-      <p>Choose a color: </p>
+      <button class="collapsible">About</button>
+      <div class="content">
+        <p>This is snake made by me. <wbr>
+          This game uses arrow keys or touch. <wbr>
+          This project is open-source and free. <wbr>
+          This project's code is in <a href="https://github.com">GitHub</a>. <wbr>
+          <a href="https://github.com/InfinityGorzan/Snake-Game">Open the project's repository</a>.
+        </p>
+      </div>
+      <button class="collapsible">Colors</button>
+      <div class="content">
+        <p>Choose a color: </p>
       <button id="red">Red</button>
       <button id="orange">Orange</button>
       <button id="yellow">Yellow</button>
@@ -139,8 +204,27 @@ button {
       <button id="purple">Purple</button>
       <button id="invertDT"><span id="invertDeviceTheme"></span></button>
       </p>
+      </div>
+
     </div>
   </div>
+
+  <script defer>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+        } 
+      });
+    }
+    </script>
 
 <script defer>
   var modal = document.getElementById("clrsmodal");
@@ -180,29 +264,47 @@ var canvasHeight = Math.floor((window.innerHeight - (5 * parseFloat(getComputedS
     var purple = document.getElementById("purple")
     var invertDT = document.getElementById("invertDT")
 
+    var gcolor = "invertDT";
+
     red.onclick = function() {
+    gcolor = "red";
   startGame("red");
+  modal.style.display = "none";
 };
 orange.onclick = function() {
+  gcolor = "orange";
   startGame("orange");
+  modal.style.display = "none";
 };
 yellow.onclick = function() {
+  gcolor = "yellow";
   startGame("yellow");
+  modal.style.display = "none";
 };
 green.onclick = function() {
+  gcolor = "green";
   startGame("green");
+  modal.style.display = "none";
 };
 blue.onclick = function() {
+  gcolor = "blue";
   startGame("blue");
+  modal.style.display = "none";
 };
 pink.onclick = function() {
+  gcolor = "pink";
   startGame("pink");
+  modal.style.display = "none";
 };
 purple.onclick = function() {
+  gcolor = "purple";
   startGame("purple");
+  modal.style.display = "none";
 };
 invertDT.onclick = function() {
+  gcolor = "invertDT";
   startGame("invertDT");
+  modal.style.display = "none";
 };
 
     function isDarkMode() {
@@ -219,7 +321,7 @@ invertDT.onclick = function() {
     function startGame(color) {
       gameBoard.style.width = canvasWidth * tileSize + "px";
       gameBoard.style.height = canvasHeight * tileSize + "px";
-      score = -1;
+      score = -1; // Start at 0
       scoreElement.textContent = "Score: " + score;
       snake = new Snake(color);
       snake.draw();
@@ -295,7 +397,7 @@ for (var i = 0; i < this.tailPositions.length - 1; i++) {
           snakePart.style.width = tileSize + "px";
           snakePart.style.height = tileSize + "px";
           if (color == "invertDT") {
-            isDarkMode() ? snakePart.style.backgroundColor = "#ddd" : snakePart.style.backgroundColor = "#333";
+            snakePart.style.backgroundColor = isDarkMode() ? "#ddd" : "#333";
           } else {
             snakePart.style.backgroundColor = color;
           }
@@ -406,10 +508,10 @@ function drawApples() {
 }
 
 function gameOver() {
+      alert("Game Over! Your score is " + score);
       score = 0;
       scoreElement.textContent = "Score: " + score;
-      alert("Game Over");
-      startGame("invertDT");
+      startGame(gcolor);
     }
 
 // Change snake direction
