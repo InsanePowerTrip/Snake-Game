@@ -13,8 +13,8 @@
   #game-board {
     background-color: #ddd;
     border: 1px solid #000;
-    width: 100%;
-    height: calc(100% - 20px); /* Subtracting 20px for the score element */
+    width: 100vw;
+    height: calc(100vh - 5em - 90px);
     box-sizing: border-box;
   }
 
@@ -27,8 +27,6 @@
   #game-board {
     background-color: #000;
     border: 1px solid #ddd;
-    width: 400px;
-    height: 400px;
   }
 }
 
@@ -55,35 +53,123 @@ button {
     outline: none;
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4CAF50;
   }
-
-  /* Directional button styles */
-  #up-button {
-    transform: rotate(-90deg);
-  }
-
-  #down-button {
-    transform: rotate(90deg);
-  }
-
-  #left-button {
-    transform: rotate(180deg);
-  }
-
-  /* Center the button container */
-  .button-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }  #score {
+  
+  #score {
     font-size: 5em;
     margin: 10px;
     text-align: left;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+
+  .modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.modal-content p {
+  font-size: large;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.modal-content p a {
+  color: #1271df;
+  text-decoration: none;
+}
+
+.close {
+  color: #2c2c2c;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modalbtn {
+  width: calc(100% - 15px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: #212121;
+    border: 1px solid #333;
+  }
+  .close {
+    color: #aaa;
+  }
+}
+
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .collapsible {
+    background-color: white;
+    color: black;
+  }
+
+  .active, .collapsible:hover {
+    background-color: #bdbdbd;
+  }
+
+  .collapsible:after {
+    color: black;
+  }
+
+  .content {
+    background-color: #212121;
+  }
+}
   </style>
 </head>
 <body>
@@ -92,15 +178,138 @@ button {
     <div id="score"><b>Score: 0</b></div>
   </div>
 
+  <button id="colors" class="modalbtn">Options</button>
 
-  <script>
+  <div id="clrsmodal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <button class="collapsible">About</button>
+      <div class="content">
+        <p>This is snake made by me. <wbr>
+          This game uses arrow keys, touch or controller. <wbr>
+          This project is open-source and free. <wbr>
+          This project's code is in <a href="https://github.com">GitHub</a>. <wbr>
+          <a href="https://github.com/InfinityGorzan/Snake-Game">Open the project's repository</a>.
+        </p>
+      </div>
+      <button class="collapsible">Colors</button>
+      <div class="content">
+        <p>Choose a color: </p>
+      <button id="red">Red</button>
+      <button id="orange">Orange</button>
+      <button id="yellow">Yellow</button>
+      <button id="green">Green</button>
+      <button id="blue">Blue</button>
+      <button id="pink">Pink</button>
+      <button id="purple">Purple</button>
+      <button id="invertDT"><span id="invertDeviceTheme"></span></button>
+      </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script defer>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+        } 
+      });
+    }
+    </script>
+
+<script defer>
+  var modal = document.getElementById("clrsmodal");
+  var btn = document.getElementById("colors");
+  var span = document.getElementsByClassName("close")[0];
+  
+  btn.onclick = function() {
+    modal.style.display = "block";
+  }
+  
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+  
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+  </script>
+
+  <script defer>
     // Game variables
-    var canvasSize = 20;
     var tileSize = 20;
+var canvasWidth = Math.floor(window.innerWidth / tileSize);
+var canvasHeight = Math.floor((window.innerHeight - (5 * parseFloat(getComputedStyle(document.documentElement).fontSize) + 90)) / tileSize);
     var snake;
     var apples = [];
     var score = 0;
     var scoreElement = document.getElementById("score");
+    var red = document.getElementById("red")
+    var orange = document.getElementById("orange")
+    var yellow = document.getElementById("yellow")
+    var green = document.getElementById("green")
+    var blue = document.getElementById("blue")
+    var pink = document.getElementById("pink")
+    var purple = document.getElementById("purple")
+    var invertDT = document.getElementById("invertDT")
+
+    var gcolor = "invertDT";
+
+    red.onclick = function() {
+    gcolor = "red";
+  startGame("red");
+  modal.style.display = "none";
+};
+orange.onclick = function() {
+  gcolor = "orange";
+  startGame("orange");
+  modal.style.display = "none";
+};
+yellow.onclick = function() {
+  gcolor = "yellow";
+  startGame("yellow");
+  modal.style.display = "none";
+};
+green.onclick = function() {
+  gcolor = "green";
+  startGame("green");
+  modal.style.display = "none";
+};
+blue.onclick = function() {
+  gcolor = "blue";
+  startGame("blue");
+  modal.style.display = "none";
+};
+pink.onclick = function() {
+  gcolor = "pink";
+  startGame("pink");
+  modal.style.display = "none";
+};
+purple.onclick = function() {
+  gcolor = "purple";
+  startGame("purple");
+  modal.style.display = "none";
+};
+invertDT.onclick = function() {
+  gcolor = "invertDT";
+  startGame("invertDT");
+  modal.style.display = "none";
+};
+
+    function isDarkMode() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
 
     // Direction constants
     var UP = "up";
@@ -108,20 +317,28 @@ button {
     var LEFT = "left";
     var RIGHT = "right";
 
+    var W = "w";
+    var S = "s";
+    var A = "a";
+    var D = "d";
+
+
     // Initial game setup
-    function startGame() {
-      score = -1;
+    function startGame(color) {
+      gameBoard.style.width = canvasWidth * tileSize + "px";
+      gameBoard.style.height = canvasHeight * tileSize + "px";
+      score = -1; // Start at 0
       scoreElement.textContent = "Score: " + score;
-      snake = new Snake();
+      snake = new Snake(color);
       snake.draw();
       createApple();
       drawApples();
     }
 
     // Snake constructor
-    function Snake() {
-      this.x = Math.floor(canvasSize / 2);
-      this.y = Math.floor(canvasSize / 2);
+    function Snake(color) {
+      this.x = Math.floor(canvasWidth / 2);
+      this.y = Math.floor(canvasHeight / 2);
       this.xSpeed = 0;
       this.ySpeed = 0;
       this.tail = 1;
@@ -133,7 +350,7 @@ button {
         this.y += this.ySpeed;
 
         // Check collision with walls
-        if (this.x < 0 || this.x >= canvasSize || this.y < 0 || this.y >= canvasSize) {
+        if (this.x < 0 || this.x >= canvasWidth || this.y < 0 || this.y >= canvasHeight) {
           gameOver();
         }
 
@@ -173,9 +390,7 @@ for (var i = 0; i < this.tailPositions.length - 1; i++) {
         scoreElement.textContent = "Score: " + score;
       };
 
-      function isDarkMode() {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
+      document.getElementById("invertDeviceTheme").innerText = isDarkMode() ? "White" : "Black"
 
       // Draw snake on the game board
       this.draw = function() {
@@ -187,7 +402,12 @@ for (var i = 0; i < this.tailPositions.length - 1; i++) {
           var snakePart = document.createElement("div");
           snakePart.style.width = tileSize + "px";
           snakePart.style.height = tileSize + "px";
-          isDarkMode() ? snakePart.style.backgroundColor = "#ddd" : snakePart.style.backgroundColor = "#333"
+          if (color == "invertDT") {
+            snakePart.style.backgroundColor = isDarkMode() ? "#ddd" : "#333";
+          } else {
+            snakePart.style.backgroundColor = color;
+          }
+
           snakePart.style.position = "absolute";
           snakePart.style.left = pos[0] * tileSize + "px";
           snakePart.style.top = pos[1] * tileSize + "px";
@@ -258,18 +478,18 @@ gameBoard.addEventListener("touchmove", handleTouchMove);
     // Create a single apple at a random position
 function createApple() {
   var apple = new Apple(
-    Math.floor(Math.random() * canvasSize),
-    Math.floor(Math.random() * canvasSize)
+    Math.floor(Math.random() * canvasWidth),
+    Math.floor(Math.random() * canvasHeight)
   );
 
   // Check collision with snake
   while (isColliding(apple.x, apple.y, snake)) {
-    apple.x = Math.floor(Math.random() * canvasSize);
-    apple.y = Math.floor(Math.random() * canvasSize);
+    apple.x = Math.floor(Math.random() * canvasWidth);
+    apple.y = Math.floor(Math.random() * canvasHeight);
   }
 
   // Check collision with walls
-  if (apple.x < 0 || apple.x >= canvasSize || apple.y < 0 || apple.y >= canvasSize) {
+  if (apple.x < 0 || apple.x >= canvasWidth || apple.y < 0 || apple.y >= canvasHeight) {
     createApple(); // If the apple is outside the boundaries, try again
   } else {
     apples = [apple];
@@ -294,10 +514,10 @@ function drawApples() {
 }
 
 function gameOver() {
+      alert("Game Over! Your score is " + score);
       score = 0;
       scoreElement.textContent = "Score: " + score;
-      alert("Game Over");
-      startGame();
+      startGame(gcolor);
     }
 
 // Change snake direction
@@ -344,6 +564,42 @@ window.addEventListener("keydown", function(event) {
     snake.changeDirection(RIGHT);
   }
 });
+function updateGamepad() {
+  var gamepads = navigator.getGamepads();
+  
+  // Iterate over connected gamepads
+  for (var i = 0; i < gamepads.length; i++) {
+    var gamepad = gamepads[i];
+    
+    if (gamepad) {
+    var axes = gamepad.axes;
+  var xAxis = axes[0];
+  var yAxis = axes[1];
+
+  // Determine the direction based on analog stick values
+  var direction = "";
+
+  if (xAxis < -0.5) {
+    direction = LEFT;
+  } else if (xAxis > 0.5) {
+    direction = RIGHT;
+  }
+
+  if (yAxis < -0.5) {
+    direction = UP;
+  } else if (yAxis > 0.5) {
+    direction = DOWN;
+  }
+
+  snake.changeDirection(direction)
+    }
+  }
+  
+  requestAnimationFrame(updateGamepad);
+}
+
+// Start the update loop
+updateGamepad();
 
     // Game loop
     function gameLoop() {
@@ -398,7 +654,7 @@ function handleTouchMove(event) {
 }
 
     // Start the game
-    startGame();
+    startGame("invertDT");
     gameLoop();
   </script>
 </body>
