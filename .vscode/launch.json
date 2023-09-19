@@ -7,8 +7,13 @@
         {
             "type": "chrome",
             "request": "launch",
+<<<<<<< HEAD
             "name": "Test",
             "file": "h:\\Stuff\\Cool\\GameDev\\snake.html"
+=======
+            "name": "Open snake.html",
+            "file": "h:\\stuff\\GameDev\\snake.html"
+>>>>>>> a029eedca5a75455d2b5765ffcfc273cff2a3687
         }
     ]
 }
